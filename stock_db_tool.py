@@ -63,6 +63,18 @@ WHERE t4.`ktype` = 'D'
     session.close()
     return [row['code'] for row in result]
 
+def query_deal_date_more_than_250(codes):
+    codes_in_str = ''
+    for i,code in enumerate(codes):
+        if i == 0:
+            codes_in_str = code
+        else:
+            codes_in_str = codes_in_str + ',' + code
+    sql = 'SELECT code FROM hist_data where code in(' + codes_in_str +') and ktype=\'d\' GROUP BY code HAVING count(1)>250;'
+    session = DBSession()
+    result = session.execute(sql)
+    session.close()
+    return [row['code'] for row in result]
 
 def query_all_stocks():
     session = DBSession()
@@ -76,4 +88,5 @@ FROM
     session.close()
     return [row['code'] for row in result]
 
+# print(query_deal_date_more(['600111','002282','600777']))
 # print(len(query_limit_up_stocks()))

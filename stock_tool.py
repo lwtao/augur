@@ -1,4 +1,3 @@
-
 from sqlalchemy import create_engine
 import tushare as ts
 import time
@@ -8,9 +7,9 @@ engine = create_engine('mysql+pymysql://root:@172.21.104.241/augur?charset=utf8'
 
 def all_stock_code():
     ret = stock_basics()
-    # return ['300279']
+    # return ['600111']
     return ret.index
-    #'603505',
+    # '603505',
     # return [  '603501',
     #          '603320', '603232', '603229', '603139', '603096', '603081', '600732',
     #          '600710', '300648', '300647', '300645', '300643', '300642', '300554',
@@ -70,25 +69,35 @@ def hist_data(code, ktype):
     # v_ma10:10日均量
     # v_ma20:20日均量
     # turnover:换手率[注：指数无此项]
-    start = '2016-10-01'
+    start = '2016-02-01'
     if ktype == 'W':
         start = '2014-01-01'
-    df = ts.get_hist_data(code, start=start, ktype=ktype)
-    df['ktype'] = ktype
-    df['code'] = code
+    df = ts.get_hist_data(code, start=start,end='2016-10-09', ktype=ktype)
+    if df is not None:
+        df['ktype'] = ktype
+        df['code'] = code
     return df
 
 
 def all_hist_data():
-
-        stock_codes = all_stock_code()
-        for stock_code in stock_codes:
-            print('-----'+stock_code)
+    stock_codes = all_stock_code()
+    for stock_code in stock_codes:
+        try:
             data_d = hist_data(stock_code, 'D')
-            data_w = hist_data(stock_code, 'W')
-            save_hist_data(data_d)
-            save_hist_data(data_w)
-            time.sleep(1)
+            # data_w = hist_data(stock_code, 'W')
+            if data_d is not None:
+                save_hist_data(data_d)
+            else:
+                print(stock_code+' no d data')
+            # if data_w is not None:
+            #     save_hist_data(data_w)
+            # else:
+            #     print(stock_code+' no w data')
+            # time.sleep(0.3)
+        except :
+            print(stock_code + ' fail')
+        else:
+            print(stock_code + ' suc')
 
 
 # return data_d, data_w
@@ -110,3 +119,7 @@ def save_hist_data(data):
 
 # all_hist_data()
 # print(all_stock_code()[3166:])
+# stock_codes = all_stock_code()
+# print(len(stock_codes))
+# for stock_code in stock_codes:
+#     print(stock_code)

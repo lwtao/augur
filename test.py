@@ -10,8 +10,8 @@ from k_tool import Elem
 
 def x(stock_hists):
     macd_difs, macd_deas, macds = k_tool.macd_cn(np.array([stock_hist.close for stock_hist in stock_hists]), 12, 26, 9)
-    elems = [Elem(str(i), e) for i, e in enumerate(macds[-12:len(macds)])]
-    stock_hists = stock_hists[-12:len(stock_hists)]
+    elems = [Elem(i, e) for i, e in enumerate(macds[-15:len(macds)])]
+    stock_hists = stock_hists[-15:len(stock_hists)]
     elems = k_tool.extremum(elems)
     # print(elems)
     # print(k_tool.extremum(elems))
@@ -21,15 +21,18 @@ def x(stock_hists):
         # macd值 后比前高
         if elem_big.key > elem_small.key:
             # 价格前比后高
-            price_before = stock_hists[int(elem_small.key)].close
-            price_after = stock_hists[int(elem_big.key)].close
+            price_before = stock_hists[elem_small.key].close
+            price_after = stock_hists[elem_big.key].close
             if price_before > price_after:
-                # 最近的macd是正数
-                if macds[len(macds)-1:len(macds)][0] > 0:
-                    print('----ok:' + stock_hists[0].code)
+                # 当周的macd是正数
+                if macds[len(macds) - 1] > 0:
+                    # 当周的dif>dea
+                    if macd_difs[len(macd_difs) - 1] > macd_deas[len(macd_deas) - 1]:
+                        print('----ok:' + stock_hists[0].code)
 
 
-limit_up_stocks = stock_db_tool.query_all_stocks()
+limit_up_stocks = stock_db_tool.query_limit_up_stocks()
+limit_up_stocks = stock_db_tool.query_deal_date_more_than_250(limit_up_stocks)
 for limit_up_stock in limit_up_stocks:
     stock_hists = stock_db_tool.query_stock_hist(limit_up_stock, 'w', '2015-01-01')
     x(stock_hists)
